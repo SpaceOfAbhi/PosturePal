@@ -12,18 +12,18 @@ class PostureScoreRing extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: 180,
-      height: 70,
+      height: 50,
       child: Stack(
         alignment: Alignment.center,
         children: [
           CircularProgressIndicator(
             value: score / 100,
-            strokeWidth: 12,
+            strokeWidth: 10,
           ),
           Text(
             "${score.toInt()}%",
             style: const TextStyle(
-              fontSize: 10,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
           ),

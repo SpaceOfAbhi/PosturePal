@@ -1,17 +1,23 @@
-import 'dart:async';
+class SensorReading {
+  final double pitch;
+  final double roll;
 
-import '../models/posture_data.dart';
+  const SensorReading({
+    required this.pitch,
+    required this.roll,
+  });
+}
 
 class SensorService {
-  Stream<PostureData> postureStream() async* {
+  Stream<SensorReading> sensorStream() async* {
     while (true) {
       await Future.delayed(
-        const Duration(seconds: 3),
+        const Duration(seconds: 2),
       );
 
-      yield PostureData(
-        score: 80,
-        status: PostureStatus.good,
+      yield const SensorReading(
+        pitch: 15,
+        roll: 5,
       );
     }
   }
