@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:posture_pal/widgets/posture_score_ring.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -7,36 +8,41 @@ class DashboardScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Center(
-          child: Column(
-            mainAxisAlignment:
-                MainAxisAlignment.center,
-            children: [
-              const Text(
-                'PosturePal',
-                style: TextStyle(fontSize: 22),
-              ),
-              const SizedBox(height: 20),
-
-              const Text(
-                '82%',
-                style: TextStyle(
-                  fontSize: 48,
-                  fontWeight: FontWeight.bold,
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  "PosturePal",
+                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
                 ),
-              ),
 
-              const Text('Good Posture'),
+                const PostureScoreRing(score: 82),
 
-              const SizedBox(height: 20),
 
-              ElevatedButton(
-                onPressed: () {},
-                child: const Text(
-                  'Focus Mode',
+                const Text(
+                  "Good Posture",
+                  style: TextStyle(color: Colors.green, fontSize: 10),
                 ),
-              ),
-            ],
+
+
+                const Text(
+                  "Sitting Time",
+                  style: TextStyle(color: Colors.grey),
+                ),
+
+
+                const Text("42 mins", style: TextStyle(fontSize: 10)),
+
+
+                ElevatedButton(
+                  onPressed: () {},
+                  child: const Text("Start Focus"),
+                ),
+              ],
+            ),
           ),
         ),
       ),
