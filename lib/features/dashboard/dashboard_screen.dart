@@ -1,42 +1,94 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:posture_pal/core/models/posture_state.dart';
 import 'package:posture_pal/core/providers/posture_provider.dart';
-import 'package:posture_pal/features/insights/insights_screen.dart';
-import 'package:posture_pal/widgets/posture_score_ring.dart';
+import 'package:posture_pal/features/stretch/stretch_screen.dart';
 
-class DashboardScreen extends ConsumerWidget {
+class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+  bool isReminderShowing = false;
+  bool dialogOpen = false;
+  @override
+  void initState() {
+    super.initState();
+
+    ref.listenManual(postureProvider, (previous, next) {
+      if (previous?.remindersToday != next.remindersToday && !dialogOpen) {
+        dialogOpen = true;
+
+        showReminderDialog();
+      }
+    });
+  }
+
+  void showReminderDialog() {
+    isReminderShowing = true;
+    showDialog(
+      context: context,
+      builder: (_) {
+        return SingleChildScrollView(
+          child: Dialog(
+            child: Container(
+              width: 280,
+              height: 280,
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                    'Time For A Check',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  const Text(
+                    'You have been inactive for 20 minutes.',
+                    textAlign: TextAlign.center,
+                  ),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        dialogOpen = false;
+                        isReminderShowing = false;
+                        Navigator.pop(context);
+                      },
+                      child: const Text("I'm Fine"),
+                    ),
+                  ),
+
+                  const SizedBox(width: 8),
+
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const StretchScreen(),
+                          ),
+                        );
+                      },
+                      child: const Text("Stretch"),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final posture = ref.watch(postureProvider);
-
-    Color statusColor(PostureStatus status) {
-      switch (status) {
-        case PostureStatus.good:
-          return Colors.green;
-
-        case PostureStatus.warning:
-          return Colors.orange;
-
-        case PostureStatus.bad:
-          return Colors.red;
-      }
-    }
-
-    String statusText(PostureStatus status) {
-      switch (status) {
-        case PostureStatus.good:
-          return "Good Posture";
-
-        case PostureStatus.warning:
-          return "Warning";
-
-        case PostureStatus.bad:
-          return "Slouching";
-      }
-    }
 
     return Scaffold(
       body: SafeArea(
@@ -47,69 +99,56 @@ class DashboardScreen extends ConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SizedBox(height: 20),
+                  SizedBox(height: 5),
                   const Text(
                     "PosturePal",
-                    style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
 
-                  PostureScoreRing(score: posture.score.toDouble()),
+                  Text(posture.isMoving ? '🟢 Moving' : '🔴 Still'),
 
-                  Text(
-                    statusText(posture.status),
-                    style: TextStyle(color: statusColor(posture.status), fontSize: 10),
-                  ),
-
-                  const Text(
-                    "Sitting Time",
-                    style: TextStyle(color: Colors.grey),
-                  ),
-
-                  Text(
-                    "${posture.sittingMinutes} mins",
-                    style: TextStyle(fontSize: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Sitting Time",
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                      Text(
+                        '${posture.stationaryMinutes ~/ 60} Min',
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
 
                   Card(
                     child: Padding(
-                      padding: EdgeInsets.all(2),
+                      padding: const EdgeInsets.all(8),
                       child: Column(
                         children: [
                           Text(
-                            "Today's Corrections",
+                            "Reminders Today : ${posture.remindersToday}",
                             style: TextStyle(color: Colors.grey),
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            "${posture.corrections}",
-                            style: TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.bold,
-                            ),
                           ),
                         ],
                       ),
                     ),
                   ),
-
-                  Row(
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const InsightsScreen(),
-                            ),
-                          );
-                        },
-                        child: const Text('Insights'),
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Column(
+                        children: [
+                          Text(
+                            "Stretches Completed : ${posture.stretchesCompleted}",
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        ],
                       ),
-                      ElevatedButton(
-                        onPressed: () {},
-                        child: const Text('Settings'),
-                      ),
-                    ],
+                    ),
                   ),
                 ],
               ),
