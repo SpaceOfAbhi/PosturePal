@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:posture_pal/core/providers/posture_provider.dart';
+import 'package:posture_pal/core/services/notification_services.dart';
 import 'package:posture_pal/features/stretch/stretch_screen.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
@@ -100,6 +101,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SizedBox(height: 5),
+
                   const Text(
                     "PosturePal",
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -111,11 +113,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "Sitting Time",
+                        "Sitting Time :",
                         style: TextStyle(color: Colors.grey),
                       ),
                       Text(
-                        '${posture.stationaryMinutes ~/ 60} Min',
+                        ' ${posture.stationaryMinutes ~/60} Min',
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,

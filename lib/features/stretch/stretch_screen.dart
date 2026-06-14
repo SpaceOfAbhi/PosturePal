@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:posture_pal/core/providers/posture_provider.dart';
 
-class StretchScreen extends StatefulWidget {
+class StretchScreen extends ConsumerStatefulWidget {
   const StretchScreen({super.key});
 
   @override
-  State<StretchScreen> createState() => _StretchScreenState();
+  ConsumerState<StretchScreen> createState() => _StretchScreenState();
 }
 
-class _StretchScreenState extends State<StretchScreen> {
+class _StretchScreenState extends ConsumerState<StretchScreen> {
   int currentIndex = 0;
 
   final stretches = [
@@ -61,7 +63,11 @@ class _StretchScreenState extends State<StretchScreen> {
                         currentIndex++;
                       });
                     } else {
-                      Navigator.pop(context);
+                      ref
+                          .read(postureProvider.notifier)
+                          .completeStretchSession();
+
+                      Navigator.popUntil(context, (route) => route.isFirst);
                     }
                   },
                   child: Text(

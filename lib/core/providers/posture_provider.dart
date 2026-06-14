@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:posture_pal/core/models/posture_state.dart';
 import 'package:posture_pal/core/services/movement_services.dart';
+import 'package:posture_pal/core/services/notification_services.dart';
 
 class PostureNotifier extends Notifier<PostureState> {
   final movementService = MovementService();
@@ -32,6 +33,8 @@ class PostureNotifier extends Notifier<PostureState> {
 
       if (inactiveSeconds >= 10 && !reminderShown) {
         reminderShown = true;
+
+        NotificationService.showReminder();
 
         state = state.copyWith(remindersToday: state.remindersToday + 1);
       }
