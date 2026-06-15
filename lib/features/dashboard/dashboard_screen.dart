@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:posture_pal/core/providers/posture_provider.dart';
-import 'package:posture_pal/core/services/notification_services.dart';
+import 'package:posture_pal/core/services/helper.dart';
+import 'package:posture_pal/core/services/monitoring_service.dart';
 import 'package:posture_pal/features/stretch/stretch_screen.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
@@ -11,20 +11,51 @@ class DashboardScreen extends ConsumerStatefulWidget {
   ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+class _DashboardScreenState extends ConsumerState<DashboardScreen>
+    with WidgetsBindingObserver {
   bool isReminderShowing = false;
   bool dialogOpen = false;
+  bool serviceRunning = false;
   @override
   void initState() {
     super.initState();
 
-    ref.listenManual(postureProvider, (previous, next) {
-      if (previous?.remindersToday != next.remindersToday && !dialogOpen) {
-        dialogOpen = true;
+    WidgetsBinding.instance.addObserver(this as WidgetsBindingObserver);
 
-        showReminderDialog();
-      }
+    checkNotificationLaunch();
+    loadServiceStatus();
+  }
+
+  Future<void> loadServiceStatus() async {
+    final running = await ServiceController.serviceStatus();
+
+    if (!mounted) return;
+
+    setState(() {
+      serviceRunning = running;
     });
+  }
+
+  Future<void> checkNotificationLaunch() async {
+    final openStretch = await ServiceController.openStretch();
+
+    print("OPEN STRETCH = $openStretch");
+
+    if (!mounted) return;
+
+    if (openStretch) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const StretchScreen()),
+      );
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      checkNotificationLaunch();
+    }
   }
 
   void showReminderDialog() {
@@ -88,8 +119,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 
   @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this as WidgetsBindingObserver);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final posture = ref.watch(postureProvider);
 
     return Scaffold(
       body: SafeArea(
@@ -100,58 +136,45 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  
                   SizedBox(height: 5),
-
                   const Text(
                     "PosturePal",
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
-
-                  Text(posture.isMoving ? '🟢 Moving' : '🔴 Still'),
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "Sitting Time :",
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                      Text(
-                        ' ${posture.stationaryMinutes ~/60} Min',
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: Column(
-                        children: [
-                          Text(
-                            "Reminders Today : ${posture.remindersToday}",
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                        ],
-                      ),
+                  SizedBox(height: 10),
+                  Text(
+                    serviceRunning ? 'Monitoring Active' : 'Monitoring Stopped',
+                    style: TextStyle(
+                      color: serviceRunning
+                          ? Colors.greenAccent
+                          : Colors.orangeAccent,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: Column(
-                        children: [
-                          Text(
-                            "Stretches Completed : ${posture.stretchesCompleted}",
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                        ],
-                      ),
+                  SizedBox(height: 20,),
+                ElevatedButton(
+                    onPressed: () async {
+                      if (serviceRunning) {
+                        await ServiceController.stop();
+
+                        setState(() {
+                          serviceRunning = false;
+                        });
+                      } else {
+                        await ServiceController.start();
+
+                        setState(() {
+                          serviceRunning = true;
+                        });
+                      }
+                    },
+                    child: Text(
+                      serviceRunning ? "Stop Monitoring" : "Start Monitoring",
                     ),
                   ),
+                  
                 ],
               ),
             ),

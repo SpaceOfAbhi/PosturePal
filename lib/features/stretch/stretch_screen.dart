@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:posture_pal/core/providers/posture_provider.dart';
+import 'package:posture_pal/features/dashboard/dashboard_screen.dart';
 
 class StretchScreen extends ConsumerStatefulWidget {
   const StretchScreen({super.key});
@@ -67,7 +68,13 @@ class _StretchScreenState extends ConsumerState<StretchScreen> {
                           .read(postureProvider.notifier)
                           .completeStretchSession();
 
-                      Navigator.popUntil(context, (route) => route.isFirst);
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const DashboardScreen(),
+                        ),
+                        (route) => false,
+                      );
                     }
                   },
                   child: Text(
