@@ -79,6 +79,7 @@ class _StretchScreenState extends ConsumerState<StretchScreen> {
                   },
                   child: Text(
                     currentIndex == stretches.length - 1 ? "Finish" : "Next",
+                    style: TextStyle(color: Colors.blueAccent),
                   ),
                 ),
               ],
