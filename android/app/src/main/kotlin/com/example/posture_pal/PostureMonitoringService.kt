@@ -59,7 +59,7 @@ class PostureMonitoringService : Service(),
         )
 
     val notification =
-        NotificationCompat.Builder(
+        Notification.Builder(
             this,
             CHANNEL_ID
         )
@@ -222,7 +222,7 @@ class PostureMonitoringService : Service(),
         )
 
     val notification =
-        NotificationCompat.Builder(
+        Notification.Builder(
             this,
             REMINDER_CHANNEL_ID
         )
