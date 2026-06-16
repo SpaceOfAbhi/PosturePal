@@ -59,7 +59,7 @@ class PostureMonitoringService : Service(),
         )
 
     val notification =
-        Notification.Builder(
+        NotificationCompat.Builder(
             this,
             CHANNEL_ID
         )
@@ -157,6 +157,15 @@ class PostureMonitoringService : Service(),
                 "Posture Monitoring",
                 NotificationManager.IMPORTANCE_LOW
             )
+        serviceChannel.enableVibration(true)
+
+        serviceChannel.vibrationPattern =
+            longArrayOf(
+                0,
+                500,
+                250,
+                500
+            )
 
         val reminderChannel =
             NotificationChannel(
@@ -164,7 +173,15 @@ class PostureMonitoringService : Service(),
                 "Stretch Reminders",
                 NotificationManager.IMPORTANCE_HIGH
             )
+        reminderChannel.enableVibration(true)
 
+        reminderChannel.vibrationPattern =
+            longArrayOf(
+                0,
+                500,
+                250,
+                500
+            )
         val manager =
             getSystemService(
                 NotificationManager::class.java
@@ -205,7 +222,7 @@ class PostureMonitoringService : Service(),
         )
 
     val notification =
-        Notification.Builder(
+        NotificationCompat.Builder(
             this,
             REMINDER_CHANNEL_ID
         )
