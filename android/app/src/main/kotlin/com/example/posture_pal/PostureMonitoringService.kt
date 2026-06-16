@@ -125,7 +125,7 @@ class PostureMonitoringService : Service(),
                         )
 
                         if (
-                            inactiveSeconds >= 60 &&
+                            inactiveSeconds >= 1800 &&
                             
                             !reminderShown
                         ) {
